@@ -8,8 +8,6 @@ module Capybara
   end
 end
 
-if Capybara.respond_to?(:register_driver)
-  Capybara.register_driver :mechanize do |app|
-    Capybara::Mechanize::Driver.new(app)
-  end
+Capybara.register_driver :mechanize do |app|
+  Capybara::Mechanize::Driver.new(app)
 end
