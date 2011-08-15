@@ -5,6 +5,7 @@ require "bundler/setup"
 
 require 'rspec'
 require 'mechwarrior'
+require 'mechanize'
 
 RSpec.configure do |config|
   config.before do

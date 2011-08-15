@@ -2,6 +2,7 @@ require 'capybara'
 
 module Capybara
   module Mechanize
+    autoload :Browser, 'capybara/mechanize/browser'
     autoload :Driver,  'capybara/mechanize/driver'
     autoload :Node,    'capybara/mechanize/node'
     autoload :Form,    'capybara/mechanize/form'

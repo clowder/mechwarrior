@@ -8,7 +8,7 @@ class Capybara::Mechanize::Form < Mechanize::Form
     
     form_node.search('*[disabled=disabled]').remove
     
-    super(form_node, @driver.browser)
+    super(form_node, @driver.browser.agent)
   end
   
   def submit(button_node)

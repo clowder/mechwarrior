@@ -1,5 +1,3 @@
-require 'mechanize'
-
 class Capybara::Mechanize::Driver < Capybara::Driver::Base
   attr_reader :app, :rack_server, :options
 
@@ -13,12 +11,7 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   end
 
   def browser
-    @browser = Mechanize.new do |config|
-      config.follow_meta_refresh = true
-      config.redirection_limit   = 5
-    end unless @browser
-
-    @browser
+    @browser ||= Capybara::Mechanize::Browser.new
   end
 
   def visit(path)
@@ -27,14 +20,7 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
 
   def follow(_method, path)
     return if is_fragment?(path)
-    
-    absolute_url = make_absolute_url(path)
-    
-    if _method == :get
-      browser.get(absolute_url, [], self.current_url)
-    else
-      browser.send(_method, absolute_url)
-    end
+    browser.send(_method, make_absolute_url(path))
   end
 
   def submit(form)
@@ -42,15 +28,15 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   end
 
   def current_url
-    has_current_page? ? current_page.uri.to_s : ''
+    browser.url
   end
 
   def response_headers
-    has_current_page? ? current_page.header : {}
+    browser.headers
   end
 
   def status_code
-    has_current_page? ? current_page.code.to_i : nil
+    browser.status_code
   end
 
   def find(selector)
@@ -58,12 +44,12 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   end
 
   def source
-    has_current_page? ? current_page.body : ''
+    browser.source
   end
   alias :body :source
 
   def dom
-    has_current_page? ? current_page.root : Nokogiri::HTML(nil)
+    browser.dom
   end
 
   def reset!
@@ -75,9 +61,9 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   def make_absolute_url(path)
     return path unless URI.parse(path).relative?
 
-    path = "#{ current_page.uri.path }#{ path }" if is_query_string?(path)
+    path = "#{ browser.uri.path }#{ path }" if is_query_string?(path)
 
-    if has_current_page? && current_page_is_external?
+    if browser.been_somewhere? && current_page_is_external?
       external_url(path)
     else
       url(path)
@@ -85,34 +71,22 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   end
   
   def external_url(path)
-    current_page.uri.merge(path).to_s  
+    browser.uri.merge(path).to_s  
   end
   
   def url(path)
     rack_server.url(path)
   end
 
-  def current_page
-    browser.current_page
-  end
-
-  def has_current_page?
-    !browser.current_page.nil?
-  end
-
   def current_page_is_external?
-    if Capybara.app_host.nil?
-      current_page.uri.host != rack_server.host 
-    else
-      current_page.uri.host != (rack_server.host || URI.parse(Capybara.app_host).host)
-    end
+    browser.uri.host != (rack_server.host || URI.parse(Capybara.app_host).host)
   end
   
   def is_query_string?(path)
-    path.start_with?('?')
+    browser.been_somewhere? && path.start_with?('?')
   end
 
   def is_fragment?(path)
-    has_current_page? && path.gsub(/^#{current_page.uri.path}/, '').start_with?('#')
+    browser.been_somewhere? && path.gsub(/^#{browser.uri.path}/, '').start_with?('#')
   end
 end
