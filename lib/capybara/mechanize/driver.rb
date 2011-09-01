@@ -22,7 +22,12 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
     return if is_fragment?(path)
     browser.send(_method, make_absolute_url(path))
   end
-
+  
+  def get(url);    follow(:get, url);    end
+  def post(url);   follow(:post, url);   end
+  def put(url);    follow(:put, url);    end
+  def delete(url); follow(:delete, url); end
+  
   def submit(form)
     browser.submit(form)
   end
