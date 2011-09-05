@@ -6,12 +6,6 @@ describe Capybara::Mechanize::Driver do
     @driver = TestSessions::Mechanize.driver
   end
 
-  it "should throw an error when no rack app is given" do
-    running do
-      Capybara::Mechanize::Driver.new(nil)
-    end.should raise_error(ArgumentError)
-  end
-
   it "should not follow more than 5 redirects" do
     running do
       @driver.visit('/redirect/6/times')

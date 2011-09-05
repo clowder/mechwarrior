@@ -2,8 +2,6 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
   attr_reader :app, :rack_server, :options
 
   def initialize(app, options={})
-    raise ArgumentError, "Mechanize requires a rack application, but none was given" unless app
-    
     @app         = app
     @options     = options
     @rack_server = Capybara::Server.new(@app)
