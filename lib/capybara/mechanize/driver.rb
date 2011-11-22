@@ -55,10 +55,11 @@ class Capybara::Mechanize::Driver < Capybara::Driver::Base
     browser.dom
   end
 
-  def reset!
-    @browser = nil
+  def reset!  	
+    browser.agent.cookie_jar.clear!
+    browser.agent.history.clear	
   end
-
+  
   private
   
   def make_absolute_url(path)
