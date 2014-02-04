@@ -5,7 +5,7 @@ class Capybara::Mechanize::Node < Capybara::RackTest::Node
       driver.follow(method, self[:href].to_s)
     elsif (tag_name == 'input' and %w(submit image).include?(type)) or
         ((tag_name == 'button') and type.nil? or type == "submit")
-      Capybara::Mechanize::Form.new(driver, form).submit(self)
+        Capybara::Mechanize::Form.new(driver, form).submit(self.native) #pass native so Mechanize gets Nokogiri::XML::Element
     end
   end  
 end
